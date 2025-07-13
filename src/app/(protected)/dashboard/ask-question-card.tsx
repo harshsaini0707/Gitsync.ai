@@ -23,31 +23,29 @@ const AskQuestion = () => {
     const[fileReferences , setFileReferences] =  React.useState<{fileName : string; sourceCode: string; summary: string}[]>([])
     const[answer , setAnswer] = React.useState('')
     const saveAnswer = api.project.saveAnswer.useMutation();
-    const ask = api.project.askQuestion.useMutation();
-const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
   if (!project?.id) return;
-  setFileReferences([]);
+  setFileReferences([])
   setAnswer('');
   setLoading(true);
+  
 
-  ask.mutate(
-    { question, projectId: project.id },
-    {
-      onSuccess: (data) => {
-        setOpen(true);
-        setFileReferences(data.fileReferences);
-        setAnswer(data.answer);
-      },
-      onError: (err) => {
-        toast.error('Failed to get answer');
-        console.error(err);
-      },
-      onSettled: () => setLoading(false),
+  try {
+    const { output, fileReference } = await askQuestion(question, project.id);
+    setOpen(true);
+    setFileReferences(fileReference);
+
+    for await (const delta of readStreamableValue(output)) {
+      if (delta) setAnswer((ans) => ans + delta);
     }
-  );
-};
 
+  } catch (error) {
+    console.error('Failed to get answer', error);
+  } finally {
+    setLoading(false);
+  }
+};
 
     console.log(answer);
 
