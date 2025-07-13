@@ -68,6 +68,12 @@ const generateEmbeddings = async (docs: Document[]) => {
         const summary = await summariseCode(doc);
         const embedding = await generateEmbedding(summary);
 
+          if (!embedding || embedding.length === 0) {
+          console.warn('Empty embedding, skipping:', doc.metadata.source || 'unknown');
+          return null;
+        }
+
+
         return {
           summary,
           embedding,
