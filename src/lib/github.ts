@@ -83,36 +83,37 @@ export const pollCommits =  async(projectId : string )=>{
     return commits;
 }
 
-async function summariseCommit(githubUrl : string , commitHash : string){
-//get the diff. then pass the diff into ai
-const data = await axios.get(`${githubUrl}/commit/${commitHash}.diff` ,{
-    headers :{
-    Accept : "application/vnd.github.v3.diff"
-}
-})
-return await aisummariseCommit(data.data) || ""
-}
-// async function summariseCommit(githubUrl: string, commitHash: string) {
-//   const parts = githubUrl.split('/');
-//   const owner = parts[parts.length - 2];
-//   const repo = parts[parts.length - 1];
-
-//   const response = await octokit.request(
-//     'GET /repos/{owner}/{repo}/commits/{ref}',
-//     {
-//       owner,
-//       repo,
-//       ref: commitHash,
-//       headers: {
-//         Accept: 'application/vnd.github.v3.diff'
-//       }
-//     }
-//   );
-
-//   const diffText = response.data as string;
-
-//   return await aisummariseCommit(diffText) || '';
+// async function summariseCommit(githubUrl : string , commitHash : string){
+// //get the diff. then pass the diff into ai
+// const data = await axios.get(`${githubUrl}/commit/${commitHash}.diff` ,{
+//     headers :{
+//     Accept : "application/vnd.github.v3.diff"
 // }
+// })
+// return await aisummariseCommit(data.data) || ""
+// }
+async function summariseCommit(githubUrl: string, commitHash: string) {
+  const parts = githubUrl.split('/');
+  const owner = parts[parts.length - 2];
+  const repo = parts[parts.length - 1];
+
+  const response = await octokit.request(
+    'GET /repos/{owner}/{repo}/commits/{ref}',
+    {
+      owner,
+      repo,
+      ref: commitHash,
+      headers: {
+        Accept: 'application/vnd.github.v3.diff'
+      }
+    }
+  );
+
+  const diffText = response.data as string;
+
+  return await aisummariseCommit(diffText) || '';
+}
+
 
 
 
