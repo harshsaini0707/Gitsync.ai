@@ -4,8 +4,71 @@ import { pollCommits } from "~/lib/github";
 import { indexGithubRepo } from "~/lib/github-loader";
 
 
+import { generateEmbedding } from "~/lib/gemini";
+import { streamText } from "ai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+
+
 export const projectRouter = createTRPCRouter({
-  createProject : protectedProcedure.input(
+
+ askQuestion: protectedProcedure
+    .input(z.object({
+      question: z.string(),
+      projectId: z.string(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const { question, projectId } = input;
+
+      const queryVector = await generateEmbedding(question);
+      const vectorQuery = `[${queryVector.join(',')}]`;
+
+      const result = await ctx.db.$queryRaw`
+        SELECT "fileName", "sourceCode", "summary",
+        1 - ("summaryEmbedding" <=> ${vectorQuery}::vector) AS similarity
+        FROM "SourceCodeEmbedding"
+        WHERE 1 - ("summaryEmbedding" <=> ${vectorQuery}::vector) > .5
+        AND "projectId" = ${projectId}
+        ORDER BY similarity DESC
+        LIMIT 10
+      ` as { fileName: string; sourceCode: string; summary: string }[];
+
+      let context = ``;
+      for (const doc of result) {
+        context += `source: ${doc.fileName}\ncode content: ${doc.sourceCode}\n summary of file: ${doc.summary}\n\n`;
+      }
+
+      const google = createGoogleGenerativeAI({
+        apiKey: process.env.GEMINI_API_KEY!,
+      });
+
+      const { textStream } = await streamText({
+        model: google('gemini-1.5-flash'),
+        prompt: `
+You are an AI code assistant who answers questions about the codebase...
+
+START CONTEXT BLOCK
+${context}
+END OF CONTEXT BLOCK
+
+START QUESTION
+${question}
+END OF QUESTION
+
+Only answer from the context.
+`
+      });
+
+      let answer = '';
+      for await (const delta of textStream) {
+        answer += delta;
+      }
+
+      return {
+        answer,
+        fileReferences: result
+      };
+    })
+  ,createProject : protectedProcedure.input(
     z.object({
         name : z.string(),
         githubUrl : z.string(),
