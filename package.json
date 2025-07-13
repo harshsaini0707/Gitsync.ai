@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "run-github": "ts-node src/lib/github.ts",
-    "build": "next build",
+
+      "build": "prisma generate && next build",
+
     "check": "next lint && tsc --noEmit",
     "db:generate": "prisma migrate dev",
     "db:migrate": "prisma migrate deploy",

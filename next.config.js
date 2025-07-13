@@ -11,7 +11,8 @@ const config = {
     },
     typescript:{
         ignoreBuildErrors:true
-    }
+    },
+     output: 'standalone',
 };
 
 export default config;
