@@ -160,8 +160,8 @@ ${safeDiff}
 
 export async function summariseCode(doc: Document) {
   try {
-    // const code = doc.pageContent.slice(0, 16000); // keep size reasonable
-    const code = doc.pageContent; 
+     const code = doc.pageContent.slice(0, 10000); // keep size reasonable
+    // const code = doc.pageContent; 
     const prompt = `
 You are an intelligent senior software engineer who specialises in onboarding junior software engineers onto projects.
 
