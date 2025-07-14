@@ -160,8 +160,8 @@ ${safeDiff}
 
 export async function summariseCode(doc: Document) {
   try {
-     const code = doc.pageContent.slice(0, 10000); // keep size reasonable
-    // const code = doc.pageContent; 
+     const code = doc.pageContent.slice(0, 13000); // keep size reasonable
+    //const code = doc.pageContent; 
     const prompt = `
 You are an intelligent senior software engineer who specialises in onboarding junior software engineers onto projects.
 
@@ -198,7 +198,7 @@ If the code appears to be configuration, data, or non-functional content, provid
         ],
       }),
     });
-    
+
     const data = await response.json();
     const text = data.choices?.[0]?.message?.content;
     return text || "No summary generated.";
@@ -209,74 +209,22 @@ If the code appears to be configuration, data, or non-functional content, provid
 }
 
 
-// export async function generateEmbedding(summary: string) {
-//   try {
+export async function generateEmbedding(summary: string) {
+  try {
   
 
-//     const model = genAI.getGenerativeModel({
-//       model: "text-embedding-004"
-//     });
-    
-    
-//     const result = await model.embedContent(summary);
-    
-//     const embedding = result.embedding;
-    
-   
-    
-//     return embedding.values;
-//   } catch (error) {
-//     console.error('Error generating embedding:', error);
-//     return [];
-//   }
-// }
-
-export async function generateEmbedding(summary: string): Promise<number[]> {
-  // Attempt Gemini embedding first
-  try {
     const model = genAI.getGenerativeModel({
       model: "text-embedding-004"
     });
-
+    
     const result = await model.embedContent(summary);
-    const embedding = result.embedding?.values;
-
-    if (embedding && embedding.length > 0) {
-      return embedding;
-    } else {
-      console.warn("Gemini embedding was empty, falling back...");
-    }
+    const embedding = result.embedding;
+    
+   
+    
+    return embedding.values;
   } catch (error) {
-    console.error("Gemini embedding failed:", error);
-  }
-
-  // --- Fallback to OpenRouter embedding model ---
-  try {
-    const response = await fetch("https://openrouter.ai/api/v1/embeddings", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.OPEN_ROUTER_MISTRAL_KEY}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://fake-repo-viewer.dev/",
-        "X-Title": "fallback-embedding",
-      },
-      body: JSON.stringify({
-        model: "voyageai/voyage-2-embedding-onnx",
-        input: summary,
-      }),
-    });
-
-    const data = await response.json();
-    const embedding = data?.data?.[0]?.embedding;
-
-    if (embedding && embedding.length > 0) {
-      return embedding;
-    } else {
-      console.error("OpenRouter fallback returned empty embedding.");
-      return [];
-    }
-  } catch (error) {
-    console.error("OpenRouter embedding fallback failed:", error);
+    console.error('Error generating embedding:', error);
     return [];
   }
 }
