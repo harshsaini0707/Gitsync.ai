@@ -209,24 +209,74 @@ If the code appears to be configuration, data, or non-functional content, provid
 }
 
 
-export async function generateEmbedding(summary: string) {
-  try {
+// export async function generateEmbedding(summary: string) {
+//   try {
   
 
-    const model = genAI.getGenerativeModel({
-      model: "text-embedding-004"
-    });
+//     const model = genAI.getGenerativeModel({
+//       model: "text-embedding-004"
+//     });
     
     
-    const result = await model.embedContent(summary);
+//     const result = await model.embedContent(summary);
     
-    const embedding = result.embedding;
+//     const embedding = result.embedding;
     
    
     
-    return embedding.values;
+//     return embedding.values;
+//   } catch (error) {
+//     console.error('Error generating embedding:', error);
+//     return [];
+//   }
+// }
+
+export async function generateEmbedding(summary: string): Promise<number[]> {
+  // Attempt Gemini embedding first
+  try {
+    const model = genAI.getGenerativeModel({
+      model: "text-embedding-004"
+    });
+
+    const result = await model.embedContent(summary);
+    const embedding = result.embedding?.values;
+
+    if (embedding && embedding.length > 0) {
+      return embedding;
+    } else {
+      console.warn("Gemini embedding was empty, falling back...");
+    }
   } catch (error) {
-    console.error('Error generating embedding:', error);
+    console.error("Gemini embedding failed:", error);
+  }
+
+  // --- Fallback to OpenRouter embedding model ---
+  try {
+    const response = await fetch("https://openrouter.ai/api/v1/embeddings", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.OPEN_ROUTER_MISTRAL_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://fake-repo-viewer.dev/",
+        "X-Title": "fallback-embedding",
+      },
+      body: JSON.stringify({
+        model: "voyageai/voyage-2-embedding-onnx",
+        input: summary,
+      }),
+    });
+
+    const data = await response.json();
+    const embedding = data?.data?.[0]?.embedding;
+
+    if (embedding && embedding.length > 0) {
+      return embedding;
+    } else {
+      console.error("OpenRouter fallback returned empty embedding.");
+      return [];
+    }
+  } catch (error) {
+    console.error("OpenRouter embedding fallback failed:", error);
     return [];
   }
 }
