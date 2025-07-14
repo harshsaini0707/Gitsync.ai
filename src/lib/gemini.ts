@@ -198,7 +198,7 @@ If the code appears to be configuration, data, or non-functional content, provid
         ],
       }),
     });
-
+    
     const data = await response.json();
     const text = data.choices?.[0]?.message?.content;
     return text || "No summary generated.";
@@ -217,8 +217,7 @@ export async function generateEmbedding(summary: string) {
       model: "text-embedding-004"
     });
     
-    console.log(`Generating summary and embedding for file: ${doc.metadata.source}`);
-
+    
     const result = await model.embedContent(summary);
     
     const embedding = result.embedding;
