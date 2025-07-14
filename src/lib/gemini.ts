@@ -217,7 +217,10 @@ export async function generateEmbedding(summary: string) {
       model: "text-embedding-004"
     });
     
+    console.log(`Generating summary and embedding for file: ${doc.metadata.source}`);
+
     const result = await model.embedContent(summary);
+    
     const embedding = result.embedding;
     
    

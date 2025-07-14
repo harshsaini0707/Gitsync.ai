@@ -1,5 +1,3 @@
-// utils/githubLoader.ts
-
 import { GithubRepoLoader } from '@langchain/community/document_loaders/web/github';
 import { Document } from '@langchain/core/documents';
 import { generateEmbedding, summariseCode } from './gemini';
@@ -20,7 +18,10 @@ export const loadGithubRepo = async (
       maxConcurrency: 5,
     }
   );
-  const docs = await loader.load();
+  console.log('Loading GitHub repo...');
+const docs = await loader.load();
+console.log(' Loaded docs count:', docs.length);
+
   return docs;
 };
 
@@ -29,6 +30,8 @@ export const indexGithubRepo = async (
   githubUrl: string,
   githubToken?: string
 )=> {
+  console.log('indexGithubRepo called with:', { projectId, githubUrl });
+
   const docs = await loadGithubRepo(githubUrl, githubToken);
   const allEmbeddings = await generateEmbeddings(docs);
 
@@ -49,11 +52,15 @@ export const indexGithubRepo = async (
       });
 
       // Use Prisma SQL raw query to update the vector column as prisma doesn't support vector
-      await db.$executeRaw`
-        UPDATE "SourceCodeEmbedding"
-        SET "summaryEmbedding" = ${`[${embedding.embedding.join(',')}]`}::vector
-        WHERE "id" = ${sourceCodeEmbedding.id}
-      `;
+     try {
+  await db.$executeRaw`
+    UPDATE "SourceCodeEmbedding"
+    SET "summaryEmbedding" = ${`[${embedding.embedding.join(',')}]`}::vector
+    WHERE "id" = ${sourceCodeEmbedding.id}
+  `;
+} catch (error) {
+  console.error("Failed to update vector column:", error);
+}
       } catch (error) {
         console.error(`Failed to process ${embedding.fileName}:`, error);
       }
@@ -66,6 +73,8 @@ const generateEmbeddings = async (docs: Document[]) => {
     docs.map(async (doc) => {
       try {
         const summary = await summariseCode(doc);
+        console.log(' Generating embeddings...');
+
         const embedding = await generateEmbedding(summary);
 
           if (!embedding || embedding.length === 0) {
