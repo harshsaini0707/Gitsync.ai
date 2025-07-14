@@ -16,6 +16,10 @@ dotenv.config();
     const stream = createStreamableValue();
 
    const queryVector  =  await generateEmbedding(question);
+   
+if (!queryVector || queryVector.length === 0) {
+  throw new Error("Embedding generation failed: empty vector returned.");
+}
    const vectorQuery = `[${queryVector.join(',')}]`
 
    const result = await db.$queryRaw`
