@@ -15,9 +15,9 @@ import CodeRef from '../dashboard/code-references';
 
 const Qapage = () => {
   const { selectedProjectId } = useProject();
-  const { data: questions } = api.project.getQuestions.useQuery({projectId : selectedProjectId}
-   
-  );
+  const { data: questions } = api.project.getQuestions.useQuery({
+    projectId: selectedProjectId
+  });
   const [questionIndex, setQuestionIndex] = React.useState(0);
 
   return (
@@ -59,15 +59,19 @@ const Qapage = () => {
       </div>
 
       {questions && questions.length > 0 && (
-        <SheetContent className="sm:max-w-[80vw]">
+        <SheetContent className="sm:max-w-[90vw]   overflow-y-auto">
           <SheetHeader>
             <SheetTitle>
               {questions[questionIndex].question}
             </SheetTitle>
-            <MDEditor.Markdown source={questions[questionIndex].answer} />
-            <CodeRef
-              filesReferences={questions[questionIndex].fileReference ?? []}
-            />
+            <div className="max-h-[50vh] overflow-y-auto">
+              <MDEditor.Markdown source={questions[questionIndex].answer} />
+            </div>
+            <div className="max-h-[40vh] overflow-y-auto">
+              <CodeRef
+                filesReferences={questions[questionIndex].fileReference ?? []}
+              />
+            </div>
           </SheetHeader>
         </SheetContent>
       )}

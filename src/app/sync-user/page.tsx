@@ -17,7 +17,6 @@ export default function SyncUserPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="flex flex-col items-center gap-4">
         <LoaderFour/>
-        <p className="text-white text-sm animate-pulse">Syncing your account...</p>
       </div>
     </div>
   );

@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "../components/ui/button";
 import { cn } from "../lib/utils";
-import { Github, LogIn, Brain, Search, Video, Rocket, Plus, CheckCircle } from "lucide-react";
-
+import { Github, Brain, Search, Video, Rocket, Plus, CheckCircle } from "lucide-react";
+import Logoo from "../../public/logo.png"
+import Image from "next/image";
 // Helper component for syntax-highlighted code blocks
 const CodeBlock = ({ code }: { code: string }) => (
   <pre className="bg-[#1e1e1e] p-4 rounded-md text-sm overflow-x-auto">
@@ -83,11 +84,11 @@ export default function HomePage() {
         >
           <nav className="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
             <div className="flex items-center gap-2 text-xl font-bold text-white tracking-wide">
-              <Brain className="w-6 h-6 text-purple-400" />
+               <Image src={Logoo} alt="logo" width={40} height={40} className="rounded-full" />
               GitSync
             </div>
             <div className="flex gap-2">
-              <Button variant="ghost" className="text-white hover:bg-gray-100" onClick={() => router.push("/sign-in")}>
+              <Button variant="ghost" className="text-white wavy-underline  hover:bg-gray-100" onClick={() => router.push("/sign-up")}>
                 Login
               </Button>
               
@@ -240,9 +241,7 @@ export default function HomePage() {
               <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <div className="animate-on-scroll lg:order-2">
                   <div className="bg-gradient-to-br from-black via-gray-900 to-gray-800 p-8 rounded-2xl border border-gray-800/50 shadow-2xl hover:shadow-green-500/10 transition-all duration-500">
-                    <div className="bg-gradient-to-r from-gray-800 to-gray-700 p-4 rounded-xl text-right mb-6 hover:from-gray-700 hover:to-gray-600 transition-all duration-300">
-                      <p className="text-white">What were the key decisions from the Q3 planning sync?</p>
-                    </div>
+                   
                     <div className="bg-gradient-to-br from-gray-900 to-black p-6 rounded-xl border border-gray-800/50 space-y-4">
                       <div className="flex items-center gap-2 mb-4">
                         <Brain className="w-5 h-5 text-green-400" />
@@ -329,9 +328,17 @@ export default function HomePage() {
               <div className="text-white font-bold text-lg mb-2">GitSync</div>
               <p>© {new Date().getFullYear()} All rights reserved.</p>
             </div>
-            <div className="flex gap-6">
-              <a href="#" className="hover:text-white"><Github className="w-5 h-5" /></a>
-            </div>
+          <div className="flex gap-6">
+  <a
+    href="https://github.com/harshsaini0707"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="hover:text-white"
+  >
+    <Github className="w-5 h-5" />
+  </a>
+</div>
+
           </div>
         </footer>
       </main>

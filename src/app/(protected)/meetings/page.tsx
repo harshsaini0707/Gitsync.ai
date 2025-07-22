@@ -9,6 +9,7 @@ import { Badge } from '~/components/ui/badge';
 import {Loader2, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import useRefetch from '~/hooks/use-refetch';
+import { LoaderFive } from '~/components/ui/loader';
 
 
 const MeetingsPage = () => {
@@ -23,10 +24,10 @@ const MeetingsPage = () => {
     const deleteMeeting = api.project.deleteMeeting.useMutation();
   return ( <div>
         <MeetingCard/>
-        <div className="h6"></div>
+        <div className="h-2"></div>
         <div className="text-xl font-semibold">Meetings</div>
-        {meetings && meetings.length === 0  && <div>No meetings found</div>}
-        {isLoading  && <div>Loading...</div>}
+        {meetings && meetings.length === 0  && <LoaderFive text='No Meetings Found' />}
+        {isLoading  && <LoaderFive text='Geeting All Your Meetings...' />}
         <ul className='divide-y divide-gray-400'>
     {
         meetings?.map((meeting)=>(

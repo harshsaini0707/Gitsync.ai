@@ -11,6 +11,7 @@ import React from 'react'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
 import { api, type RouterOutputs } from '~/trpc/react'
+import { LoaderFour } from '~/components/ui/loader'
 
 type Props ={
    meetingId : string 
@@ -20,7 +21,7 @@ const IssuesList = ({meetingId}: Props) => {
     const {data : meeting , isLoading} = api.project.getMeetingById.useQuery({meetingId},{
         refetchInterval: 4000
     })
-    if(isLoading || !meeting) return <div>Loading...</div>
+    if(isLoading || !meeting) return <LoaderFour text='Fetching Meeting' />
   return (
     <>
     <div className='p-8'>
